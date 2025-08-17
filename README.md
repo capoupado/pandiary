@@ -1,5 +1,3 @@
-I'll create the README.md file in your project directory with the comprehensive content I generated:
-
 ```markdown:README.md
 # 🍒 Pandiary - Personal Wellness & Mood Tracking App
 
