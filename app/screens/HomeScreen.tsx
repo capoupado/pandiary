@@ -75,18 +75,15 @@ export default function HomeScreen() {
                 setTodayEntry(entry);
             };
 
+            const fetchStreak = async () => {
+                const streak = await getStreak();
+                setStreak(streak);
+            };
+
             fetchTodayEntryForButtons();
+            fetchStreak();
         }, [fetchEntryByDate])
     );
-
-    useEffect(() => {
-        const fetchStreak = async () => {
-            const streak = await getStreak();
-            setStreak(streak);
-        };
-        fetchStreak();
-    }, []);
-
 
     const styles = StyleSheet.create({
         weeklyCalendarContainer: {
@@ -250,8 +247,8 @@ export default function HomeScreen() {
                     <>
                         <InfoCardRow>
                             <InfoCard
-                                title="Sleep"
-                                subtitle={selectedEntry?.sleep_quality + " " + selectedEntry?.sleep_time + "h"}
+                                title="Sleep (h)"
+                                subtitle={selectedEntry?.sleep_time}
                                 icon="bed"
                                 backgroundColor={theme.colors.primary}
                                 borderColor={theme.colors.secondary}
@@ -327,7 +324,9 @@ export default function HomeScreen() {
                                 icon="plus-circle"
                                 contentStyle={{ paddingVertical: 8 }}
                                 labelStyle={{ fontSize: 16, fontWeight: 'bold' }}
-                                onPress={() => navigation.navigate('entryForm')}
+                                onPress={() => navigation.navigate('entryForm', { 
+                                    selectedDate: selectedDayData?.date?.toISOString() 
+                                })}
                             >
                                 Check In Today
                             </Button>
@@ -374,7 +373,9 @@ export default function HomeScreen() {
                                     style={styles.emptyStateButton}
                                     contentStyle={{ paddingVertical: 12, paddingHorizontal: 24 }}
                                     labelStyle={{ fontSize: 16, fontWeight: 'bold' }}
-                                    onPress={() => navigation.navigate('entryForm')}
+                                    onPress={() => navigation.navigate('entryForm', { 
+                                        selectedDate: selectedDayData?.date?.toISOString() 
+                                    })}
                                 >
                                     Log Your Day
                                 </Button>
@@ -385,7 +386,9 @@ export default function HomeScreen() {
                                     style={styles.emptyStateButtonSecondary}
                                     contentStyle={{ paddingVertical: 8, paddingHorizontal: 20 }}
                                     labelStyle={{ fontSize: 14, fontWeight: '600' }}
-                                    onPress={() => navigation.navigate('entryForm')}
+                                    onPress={() => navigation.navigate('entryForm', { 
+                                        selectedDate: selectedDayData?.date?.toISOString() 
+                                    })}
                                 >
                                     Log This Day
                                 </Button>

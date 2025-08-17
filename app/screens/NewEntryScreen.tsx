@@ -15,6 +15,7 @@ export default function EntryScreenForm() {
     const route = useRoute<any>();
     const editing = route.params?.mode === 'edit';
     const existingEntry = route.params?.entry;
+    const selectedDate = route.params?.selectedDate; // For logging specific days
     const theme = useTheme();
 
     const styles = StyleSheet.create({
@@ -64,7 +65,25 @@ export default function EntryScreenForm() {
         // Example: require at least one mood and sleepAmount
         // if (moods.length === 0) return;
         try {
-            const timestamp = new Date().toISOString();
+            // For new entries: use selectedDate if provided, otherwise current time
+            // For editing: don't include timestamp to preserve original
+            const getTimestamp = () => {
+                if (editing) {
+                    return undefined; // Don't update timestamp when editing
+                }
+                
+                if (selectedDate) {
+                    // Use the selected date but keep current time
+                    const date = new Date(selectedDate);
+                    date.setHours(new Date().getHours());
+                    date.setMinutes(new Date().getMinutes());
+                    date.setSeconds(new Date().getSeconds());
+                    return date.toISOString();
+                }
+                
+                return new Date().toISOString(); // Default to current time
+            };
+
             let entryData: {
                 id?: number;
                 sleep_time: string;
@@ -78,7 +97,7 @@ export default function EntryScreenForm() {
                 motivation: string;
                 anxiety: string;
                 others: string;
-                timestamp: string;
+                timestamp?: string;
             } = {
                 sleep_time: String(sleepAmount),
                 sleep_quality: String(sleepQuality),
@@ -90,9 +109,14 @@ export default function EntryScreenForm() {
                 focus: String(focus),
                 motivation: String(motivation),
                 anxiety: String(anxiety),
-                others: others, // Convert array to string
-                timestamp,
+                others: others,
             };
+
+            // Only add timestamp for new entries
+            const timestamp = getTimestamp();
+            if (timestamp) {
+                entryData.timestamp = timestamp;
+            }
 
             if (editing) {
                 // Ensure id is present and of type number
@@ -104,7 +128,7 @@ export default function EntryScreenForm() {
                     () => navigation.goBack()
                 );
             } else {
-                const newId = await saveEntry(entryData);
+                const newId = await saveEntry(entryData as any);
                 navigation.replace('entryDetail', { entryId: newId });
             }
         } catch (error) {

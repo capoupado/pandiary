@@ -156,26 +156,46 @@ export async function updateEntry(
     motivation: string;
     anxiety: string;
     others: string;
-    timestamp: string;
+    timestamp?: string; // Make timestamp optional for updates
   },
   callback?: () => void
 ) {
-  await db.runAsync(
-    `UPDATE entries SET sleep_time = ?, sleep_quality = ?, moods = ?, energy_level = ?, stress_level = ?, body_feel = ?, appetite = ?, focus = ?, motivation = ?, anxiety = ?, others = ?, timestamp = ? WHERE id = ?;`,
-    entry.sleep_time,
-    entry.sleep_quality,
-    entry.moods,
-    entry.energy_level,
-    entry.stress_level,
-    entry.body_feel,
-    entry.appetite,
-    entry.focus,
-    entry.motivation,
-    entry.anxiety,
-    entry.others,
-    entry.timestamp,
-    entry.id
-  );
+  // Only update timestamp if provided, otherwise preserve existing one
+  if (entry.timestamp) {
+    await db.runAsync(
+      `UPDATE entries SET sleep_time = ?, sleep_quality = ?, moods = ?, energy_level = ?, stress_level = ?, body_feel = ?, appetite = ?, focus = ?, motivation = ?, anxiety = ?, others = ?, timestamp = ? WHERE id = ?;`,
+      entry.sleep_time,
+      entry.sleep_quality,
+      entry.moods,
+      entry.energy_level,
+      entry.stress_level,
+      entry.body_feel,
+      entry.appetite,
+      entry.focus,
+      entry.motivation,
+      entry.anxiety,
+      entry.others,
+      entry.timestamp,
+      entry.id
+    );
+  } else {
+    // Preserve original timestamp when updating
+    await db.runAsync(
+      `UPDATE entries SET sleep_time = ?, sleep_quality = ?, moods = ?, energy_level = ?, stress_level = ?, body_feel = ?, appetite = ?, focus = ?, motivation = ?, anxiety = ?, others = ? WHERE id = ?;`,
+      entry.sleep_time,
+      entry.sleep_quality,
+      entry.moods,
+      entry.energy_level,
+      entry.stress_level,
+      entry.body_feel,
+      entry.appetite,
+      entry.focus,
+      entry.motivation,
+      entry.anxiety,
+      entry.others,
+      entry.id
+    );
+  }
   if (callback) callback();
 }
 

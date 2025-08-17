@@ -41,9 +41,33 @@ export default function SummaryScreen() {
         : 0;
     
     const mostCommonMood = entries.length > 0 
-        ? entries.map(entry => entry.moods).sort((a, b) =>
-            entries.filter(v => v.moods === a).length - entries.filter(v => v.moods === b).length
-        ).pop()
+        ? (() => {
+            // Create a map to count individual moods
+            const moodCounts: { [key: string]: number } = {};
+            
+            entries.forEach(entry => {
+                if (entry.moods) {
+                    // Split moods by comma and trim whitespace
+                    const individualMoods = entry.moods.split(',').map((mood: string) => mood.trim());
+                    individualMoods.forEach((mood: string) => {
+                        moodCounts[mood] = (moodCounts[mood] || 0) + 1;
+                    });
+                }
+            });
+            
+            // Find the mood with the highest count
+            let mostCommon = 'N/A';
+            let highestCount = 0;
+            
+            Object.entries(moodCounts).forEach(([mood, count]) => {
+                if (count > highestCount) {
+                    highestCount = count;
+                    mostCommon = mood;
+                }
+            });
+            
+            return mostCommon;
+        })()
         : 'N/A';
 
     const formatEnergyLevel = (level: number) => {
@@ -79,7 +103,9 @@ export default function SummaryScreen() {
             'calm': '😌',
             'frustrated': '😤',
             'confident': '😎',
-            'bored': '😑'
+            'bored': '😑',
+            'stressed': '😰',
+            'motivated': '😤'
         };
         
         if (!mood) return '😐';
