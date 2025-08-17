@@ -1,4 +1,3 @@
-```markdown:README.md
 # 🍒 Pandiary - Personal Wellness & Mood Tracking App
 
 A comprehensive React Native wellness application that helps users track their daily mood, sleep patterns, energy levels, and mental health metrics. Built with modern React Native architecture and featuring a beautiful, intuitive interface.
@@ -43,8 +42,6 @@ A comprehensive React Native wellness application that helps users track their d
 ## �� Platform Support
 
 - **Android**: ✅ Fully Supported
-- **iOS**: ✅ Fully Supported (Tablet support included)
-- **Web**: ✅ Basic Support
 
 ## 🚀 Installation
 
