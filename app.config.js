@@ -25,6 +25,11 @@ export default {
     web: {
       favicon: "./assets/favicon.png"
     },
+    fonts: [
+      "./assets/fonts/CircularStd-Book.otf",
+      "./assets/fonts/CircularStd-Medium.otf", 
+      "./assets/fonts/CircularStd-Bold.otf"
+    ],
     extra: {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY
     }

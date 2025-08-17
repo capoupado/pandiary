@@ -258,6 +258,43 @@ export async function getEntries(): Promise<any[]> {
   return result;
 }
 
+export async function getStreak(): Promise<number> {
+  // Get all entry dates, ordered descending
+  const result = await db.getAllAsync(
+    `SELECT timestamp FROM entries ORDER BY timestamp DESC;`
+  );
+  if (result.length === 0) return 0;
+
+  // Convert timestamps to date strings (YYYY-MM-DD)
+  const entryDates = result
+    .map((row: any) => new Date(row.timestamp))
+    .map((date: Date) => date.toISOString().slice(0, 10));
+
+  // Remove duplicate days (if multiple entries per day)
+  const uniqueDates = Array.from(new Set(entryDates));
+
+  // Calculate streak: count consecutive days up to today
+  let streak = 0;
+  let currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  for (let i = 0; i < uniqueDates.length; i++) {
+    const entryDate = new Date(uniqueDates[i]);
+    entryDate.setHours(0, 0, 0, 0);
+
+    if (currentDate.getTime() === entryDate.getTime()) {
+      streak++;
+      // Move to previous day
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      // If the entry is not for the expected day, streak ends
+      break;
+    }
+  }
+
+  return streak;
+}
+
 export async function updateAIReport(
   entryId: number,
   aiReport: string,
@@ -310,6 +347,25 @@ export async function getEntryById(id: number): Promise<any | null> {
     id
   );
 
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getEntryByDate(date: string): Promise<any | null> {
+  // Convert the input date string to a Date object and get the start and end of that day
+  const day = new Date(date);
+  day.setHours(0, 0, 0, 0);
+  const start = day.toISOString();
+
+  const endDate = new Date(day);
+  endDate.setDate(endDate.getDate() + 1);
+  const end = endDate.toISOString();
+
+  // Query for any entry whose timestamp is within that day
+  const result = await db.getAllAsync(
+    `SELECT * FROM entries WHERE timestamp >= ? AND timestamp < ? ORDER BY timestamp DESC;`,
+    start,
+    end
+  );
   return result.length > 0 ? result[0] : null;
 }
 

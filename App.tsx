@@ -16,6 +16,7 @@ import { DefaultTheme } from 'react-native-paper';
 import CBTExercisesScreen from './app/screens/CBTExercisesScreen';
 import ThoughtLogScreen from './app/screens/ThoughtLogScreen';
 import ThoughtLogEntryScreen from './app/screens/thought-log/ThoughtLogEntryScreen';
+import ThoughtLogViewScreen from './app/screens/thought-log/ThoughtLogViewScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -63,35 +64,72 @@ function MainTabs() {
   );
 }
 
-/*const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: '#C19BFF',
-    secondary: '#CEAFFF',
-    tertiary: '#F6B2FF',
-    background: '#FFC6FE',
-    surface: '#FCD6F7',
-    text: '#000000',
-    disabled: '#FCD6F7',
-    // Add or override other colors as needed
-  },
-};*/
-
 const theme = {
   ...DefaultTheme,
+  fonts: {
+    ...DefaultTheme.fonts,
+    regular: {
+      fontFamily: 'CircularStd-Book',
+      fontWeight: '400',
+    },
+    medium: {
+      fontFamily: 'CircularStd-Medium', 
+      fontWeight: '500',
+    },
+    bold: {
+      fontFamily: 'CircularStd-Bold',
+      fontWeight: '700',
+    },
+    heavy: {
+      fontFamily: 'CircularStd-Bold',
+      fontWeight: '700',
+    },
+  },
   colors: {
     ...DefaultTheme.colors,
-    primary: '#4691ED',
-    secondary: '#9E4F05',
-    tertiary: '#F8963A',
-    background: '#FCD5B0',
-    surface: '#7DB2F2',
-    onSurface: '#FFFAFF',
-    disabled: '#FCD6F7',
-    secondaryContainer: '#1154A7',
-    primaryContainer: '#FAB575',
-    // Add or override other colors as needed
+    // New sophisticated color palette from reference
+    primary: '#FEAE96',           // Warm coral/peach for primary actions
+    secondary: '#FE979C',         // Soft pink for secondary elements  
+    tertiary: '#013237',          // Deep navy blue for accents
+    
+    // Backgrounds and surfaces
+    background: '#F6E8DF',        // Warm cream background
+    surface: '#FFFFFF',           // Pure white surface for cards
+    surfaceVariant: '#F9F1ED',    // Subtle warm variant
+    
+    // Primary containers - lighter tints
+    primaryContainer: '#FEF0EC',  // Very light coral
+    secondaryContainer: '#FEF3F4', // Very light pink
+    tertiaryContainer: '#E8F0F1',  // Very light navy
+    
+    // Text colors
+    onPrimary: '#FFFFFF',         // White text on primary
+    onSecondary: '#FFFFFF',       // White text on secondary
+    onTertiary: '#FFFFFF',        // White text on tertiary
+    onBackground: '#013237',      // Deep navy for main text
+    onSurface: '#013237',         // Deep navy text on surfaces
+    onSurfaceVariant: '#5A6B6D',  // Muted navy for secondary text
+    
+    // Interactive states
+    outline: '#FEAE96',           // Primary coral for borders
+    outlineVariant: '#E5D5CE',    // Subtle warm borders
+    
+    // Status colors
+    error: '#D93025',             // Standard error red
+    onError: '#FFFFFF',           // White text on error
+    errorContainer: '#FCE8E6',    // Light error background
+    onErrorContainer: '#410E0B',  // Dark text on error container
+    
+    // Special colors
+    shadow: '#000000',            // Black shadow
+    scrim: '#000000',             // Black scrim
+    inverseSurface: '#013237',    // Deep navy for inverse
+    inverseOnSurface: '#FFFFFF',  // White text on inverse
+    inversePrimary: '#FDD4C7',    // Light coral for inverse
+    
+    // Additional semantic colors
+    backdrop: '#8A9597',          // Muted navy for disabled text
+    disabled: '#D0D7D8',          // Light gray for disabled elements
   },
 };
 
@@ -151,6 +189,11 @@ export default function App() {
             name="thoughtLogEntry"
             component={ThoughtLogEntryScreen}
             options={{ title: 'Thought Log Entry', headerStyle: {backgroundColor: theme.colors.primaryContainer} }}
+          />
+          <Stack.Screen
+            name="thoughtLogView"
+            component={ThoughtLogViewScreen}
+            options={{ title: 'Thought Log View', headerStyle: {backgroundColor: theme.colors.primaryContainer} }}
           />
         </Stack.Navigator>
       </NavigationContainer>

@@ -5,10 +5,13 @@ import { getThoughtLogs, ThoughtLog } from '../../db/database';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
-type Navigation = StackNavigationProp<any>;
+type RootStackParamList = {
+    thoughtLogEntry: { mode: 'create' | 'edit', logId?: number };
+    thoughtLogView: { log: ThoughtLog };
+};
 
 export default function ThoughtLogSummary() {
-    const navigation = useNavigation<Navigation>();
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const [thoughtLogs, setThoughtLogs] = useState<ThoughtLog[]>([]);
     const theme = useTheme();
 
@@ -55,7 +58,7 @@ export default function ThoughtLogSummary() {
                 data={thoughtLogs}
                 keyExtractor={item => item.id?.toString() || Math.random().toString()}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => navigation.navigate('thoughtLogEntry', { mode: 'edit', log: item })}>
+                    <TouchableOpacity onPress={() => navigation.navigate('thoughtLogView', { log: item })}>
                         <Card style={styles.card}>
                             <Card.Content>
                                 <Text variant='labelSmall' style={{ color: theme.colors.onSurface }}>

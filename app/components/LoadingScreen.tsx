@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Avatar, Text, useTheme } from 'react-native-paper';
 
 export default function LoadingScreen() {
   const theme = useTheme();
@@ -26,12 +26,9 @@ export default function LoadingScreen() {
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={require('../../assets/my-cherryspace.png')} 
-        style={styles.image}
-        resizeMode="contain"
-      />
-      <Text style={styles.loadingText}>Loading...</Text>
+      <Text variant="headlineLarge" style={{ color: theme.colors.backdrop, fontWeight: 'bold' }}>Welcome to Pandiary!</Text>
+      <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>Your personal mood journal</Text>
+      <Avatar.Image size={128} source={require('../../assets/my-cherryspace.png')} style={{ backgroundColor: "rgba(255,255,255,0)" }} />
     </View>
   );
 }

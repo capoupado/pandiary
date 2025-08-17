@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, ScrollView, Alert } from 'react-native';
-import { Text, Button, Card, Title, Paragraph, Divider, useTheme } from 'react-native-paper';
+import { View, ScrollView, Alert, StyleSheet } from 'react-native';
+import { Text, Button, Card, Title, Paragraph, Divider, useTheme, Avatar } from 'react-native-paper';
 import { useFocusEffect, useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { getEntryById, deleteEntry, updateAIReport } from '../db/database';
 import { formatDate, generateAIReport } from '../utils/utils'; // Assuming you have a utility function to get emoji by mood
@@ -84,89 +84,294 @@ export default function EntryDetailScreen() {
     return <Text style={{ padding: 16 }}>Loading...</Text>;
   }
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+      padding: 16,
+      paddingBottom: 32,
+    },
+    headerSection: {
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    dateText: {
+      color: theme.colors.onSurfaceVariant,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+    sectionCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 16,
+      marginBottom: 16,
+      elevation: 2,
+      shadowColor: theme.colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    sectionTitle: {
+      color: theme.colors.onSurface,
+      fontWeight: 'bold',
+      marginBottom: 16,
+    },
+    dataRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    dataIcon: {
+      marginRight: 12,
+    },
+    dataLabel: {
+      color: theme.colors.onSurfaceVariant,
+      fontWeight: '600',
+      marginRight: 8,
+    },
+    dataValue: {
+      color: theme.colors.onSurface,
+      flex: 1,
+    },
+    notesCard: {
+      backgroundColor: theme.colors.surfaceVariant,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 16,
+    },
+    actionButton: {
+      borderRadius: 12,
+      marginBottom: 12,
+      elevation: 2,
+    },
+    deleteButton: {
+      borderRadius: 12,
+      backgroundColor: theme.colors.error,
+      marginTop: 8,
+    },
+  });
+
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }} style={{ flexGrow: 1, paddingBottom: 20, backgroundColor: theme.colors.background }}>
-      <Text variant="labelLarge" style={{ marginBottom: 10, color: theme.colors.backdrop, fontWeight: 'bold', textAlign: 'center' }}>
-        This entry was created on {formatDate(entry.timestamp)}
-      </Text>
-      <Card style={{ marginBottom: 20, borderRadius: 12, backgroundColor: theme.colors.secondary }}>
-        <Card.Content>
-          <Text variant="labelLarge">Hey there,</Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">🙍🏻‍♂️ You feel </Text>
-            {Array.isArray(entry.moods)
-              ? entry.moods.map((m: string) => m.toLowerCase()).join(', ')
-              : entry.moods
-                ? entry.moods.toLowerCase()
-                : 'N/A'}.
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <Text variant="bodyLarge" style={styles.dateText}>
+            Entry created on {formatDate(entry.timestamp)}
           </Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">🌙 You slept around </Text>
-            {entry.sleep_time.replace("-", " to ") + " hours" || 'N/A'}
-            <Text variant="bodyMedium"> and you feel it was </Text>
-            {entry.sleep_quality.toLowerCase() || 'N/A'}.
-          </Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">🔋 Your energy level is </Text>
-            {entry.energy_level.toLowerCase() || 'N/A'}.
-          </Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">😣 Your stress level is </Text>
-            {entry.stress_level.toLowerCase() || 'N/A'}.
-          </Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">💪🏻 Your body feels </Text>
-            {Array.isArray(entry.body_feel)
-              ? entry.body_feel.map((m: string) => m.toLowerCase()).join(', ')
-              : entry.body_feel
-                ? entry.body_feel.toLowerCase()
-                : 'N/A'}.
-          </Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">🍴 Your appetite is </Text>
-            {entry.appetite.toLowerCase() || 'N/A'}.
-          </Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">🧠 Your focus level is </Text>
-            {entry.focus.toLowerCase() || 'N/A'}.
-          </Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">🍃 Your motivation level is </Text>
-            {entry.motivation.toLowerCase() || 'N/A'}.
-          </Text>
-          <Text style={{ marginTop: 8 }} variant="bodyMedium">
-            <Text variant="bodyMedium">😰 Your anxiety level is </Text>
-            {entry.anxiety.toLowerCase() || 'N/A'}.
-          </Text>
-          <Divider style={{ marginVertical: 16 }} />
-          <Text variant="titleLarge">Notes</Text>
-          <Text variant="bodyMedium">{entry.others || 'No notes provided.'}</Text>
+        </View>
 
-          {entry.ai_report ? (
-            <>
-              <Divider style={{ marginVertical: 16 }} />
-              <Text variant="titleLarge">Pandiary Report:</Text>
-              <Text variant='bodyMedium'>{entry.ai_report}</Text>
-            </>
-          ) : (
-            <></>
-          )}
-          <View style={{ marginTop: 20, marginBottom: 20, flexDirection: 'column', justifyContent: 'space-between', gap: 10 }}>
-            <Button style={{backgroundColor: !!entry.ai_report ?  theme.colors.surfaceDisabled : theme.colors.tertiary}} mode="contained" onPress={() => navigation.navigate('entryForm', { mode: 'edit', entry })} disabled={!!entry.ai_report}>
-              ✏️ Edit this entry
-            </Button>
-            <Button style={{backgroundColor: !!entry.ai_report ?  theme.colors.surfaceDisabled : theme.colors.tertiary}} mode="contained" onPress={() => handleGenerateAIReport(entry)} disabled={!!entry.ai_report}>
-              {!!entry.ai_report ? "📃 Already generated report" : "📃 Generate Report"}
-            </Button>
-            <Button style={{backgroundColor: theme.colors.tertiary}} mode="contained" onPress={handleDelete}>
-              🗑️ Delete this entry
-            </Button>
-          </View>
-        </Card.Content>
+        {/* Health Metrics Section */}
+        <Card style={styles.sectionCard}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Health & Wellness
+            </Text>
+            
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="bed" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.primary }]}
+                color={theme.colors.onPrimary}
+              />
+              <Text style={styles.dataLabel}>Sleep:</Text>
+              <Text style={styles.dataValue}>
+                {entry.sleep_time.replace("-", " to ")} hours, felt {entry.sleep_quality.toLowerCase()}
+              </Text>
+            </View>
 
-      </Card>
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="battery-charging-high" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.secondary }]}
+                color={theme.colors.onSecondary}
+              />
+              <Text style={styles.dataLabel}>Energy:</Text>
+              <Text style={styles.dataValue}>{entry.energy_level}</Text>
+            </View>
 
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="dumbbell" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.primary }]}
+                color={theme.colors.onPrimary}
+              />
+              <Text style={styles.dataLabel}>Body Feel:</Text>
+              <Text style={styles.dataValue}>
+                {Array.isArray(entry.body_feel)
+                  ? entry.body_feel.map((m: string) => m.toLowerCase()).join(', ')
+                  : entry.body_feel || 'N/A'}
+              </Text>
+            </View>
+          </Card.Content>
+        </Card>
 
-    </ScrollView>
+        {/* Mental State Section */}
+        <Card style={styles.sectionCard}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Mental State
+            </Text>
+            
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="emoticon-happy" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.tertiary }]}
+                color={theme.colors.onTertiary}
+              />
+              <Text style={styles.dataLabel}>Mood:</Text>
+              <Text style={styles.dataValue}>
+                {Array.isArray(entry.moods)
+                  ? entry.moods.map((m: string) => m.toLowerCase()).join(', ')
+                  : entry.moods || 'N/A'}
+              </Text>
+            </View>
+
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="emoticon-sad" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.secondary }]}
+                color={theme.colors.onSecondary}
+              />
+              <Text style={styles.dataLabel}>Stress:</Text>
+              <Text style={styles.dataValue}>{entry.stress_level}</Text>
+            </View>
+
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="emoticon-sad" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.primary }]}
+                color={theme.colors.onPrimary}
+              />
+              <Text style={styles.dataLabel}>Anxiety:</Text>
+              <Text style={styles.dataValue}>{entry.anxiety}</Text>
+            </View>
+
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="emoticon-happy" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.secondary }]}
+                color={theme.colors.onSecondary}
+              />
+              <Text style={styles.dataLabel}>Motivation:</Text>
+              <Text style={styles.dataValue}>{entry.motivation}</Text>
+            </View>
+          </Card.Content>
+        </Card>
+
+        {/* Additional Metrics */}
+        <Card style={styles.sectionCard}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Additional Metrics
+            </Text>
+            
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="food" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.tertiary }]}
+                color={theme.colors.onTertiary}
+              />
+              <Text style={styles.dataLabel}>Appetite:</Text>
+              <Text style={styles.dataValue}>{entry.appetite}</Text>
+            </View>
+
+            <View style={styles.dataRow}>
+              <Avatar.Icon 
+                size={36} 
+                icon="brain" 
+                style={[styles.dataIcon, { backgroundColor: theme.colors.primary }]}
+                color={theme.colors.onPrimary}
+              />
+              <Text style={styles.dataLabel}>Focus:</Text>
+              <Text style={styles.dataValue}>{entry.focus}</Text>
+            </View>
+          </Card.Content>
+        </Card>
+
+        {/* Notes Section */}
+        {entry.others && (
+          <Card style={styles.sectionCard}>
+            <Card.Content>
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Notes
+              </Text>
+              <View style={styles.notesCard}>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {entry.others}
+                </Text>
+              </View>
+            </Card.Content>
+          </Card>
+        )}
+
+        {/* AI Report Section */}
+        {entry.ai_report && (
+          <Card style={styles.sectionCard}>
+            <Card.Content>
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Pandiary AI Report
+              </Text>
+              <View style={styles.notesCard}>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {entry.ai_report}
+                </Text>
+              </View>
+            </Card.Content>
+          </Card>
+        )}
+
+        {/* Action Buttons */}
+        <View style={{ marginTop: 8 }}>
+          <Button 
+            mode="contained" 
+            style={[styles.actionButton, { 
+              backgroundColor: !!entry.ai_report ? theme.colors.outline : theme.colors.primary 
+            }]}
+            disabled={!!entry.ai_report}
+            onPress={() => navigation.navigate('entryForm', { mode: 'edit', entry })}
+            icon="pencil"
+            contentStyle={{ paddingVertical: 8 }}
+            labelStyle={{ fontSize: 16, fontWeight: 'bold' }}
+          >
+            Edit this entry
+          </Button>
+          
+          <Button 
+            mode="contained" 
+            style={[styles.actionButton, { 
+              backgroundColor: !!entry.ai_report ? theme.colors.outline : theme.colors.tertiary 
+            }]}
+            disabled={!!entry.ai_report}
+            onPress={() => handleGenerateAIReport(entry)}
+            icon="file-document"
+            contentStyle={{ paddingVertical: 8 }}
+            labelStyle={{ fontSize: 16, fontWeight: 'bold' }}
+          >
+            {!!entry.ai_report ? "Report Already Generated" : "Generate AI Report"}
+          </Button>
+          
+          <Button 
+            mode="contained" 
+            style={styles.deleteButton}
+            onPress={handleDelete}
+            icon="delete"
+            contentStyle={{ paddingVertical: 8 }}
+            labelStyle={{ fontSize: 16, fontWeight: 'bold' }}
+          >
+            Delete this entry
+          </Button>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
