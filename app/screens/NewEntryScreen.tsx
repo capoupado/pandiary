@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Avatar, Button, Text, TextInput, useTheme } from 'react-native-paper';
+import { Avatar, Button, Text, TextInput, useTheme, Card } from 'react-native-paper';
 import TagSelector from '../components/TagSelector';
 import { saveEntry, updateEntry } from '../db/database';
 import { useRoute } from '@react-navigation/native';
@@ -21,31 +21,121 @@ export default function EntryScreenForm() {
     const styles = StyleSheet.create({
         scrollContainer: {
             flexGrow: 1,
-            paddingBottom: 64, // Add padding to the bottom for better scroll experience
-            backgroundColor: theme.colors.background, // Let Paper theme handle background color
+            paddingBottom: 32,
+            backgroundColor: theme.colors.background,
         },
-        container: { flex: 1, padding: 16, gap: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.background },
-        input: {
-            minHeight: 100,
-            textAlignVertical: 'top',
-            color: "#000000", // Use Paper theme for text color
-            backgroundColor: theme.colors.onSurface, // Let Paper theme handle surface color
-            borderColor: theme.colors.primary, // Use Paper theme for border color
-            borderRadius: 8,
-            borderWidth: 2,
-            padding: 8,
-            width: '100%',
+        container: { 
+            flex: 1, 
+            padding: 20, 
+            gap: 20, 
+            backgroundColor: theme.colors.background 
         },
-        questions: {
-            color: theme.colors.onSurface, // Use Paper theme for text color
+        headerSection: {
+            alignItems: 'center',
+            marginBottom: 8,
+        },
+        pageTitle: {
+            color: theme.colors.onBackground,
             fontWeight: 'bold',
+            textAlign: 'center',
+            marginBottom: 8,
+        },
+        pageSubtitle: {
+            color: theme.colors.onSurfaceVariant,
+            textAlign: 'center',
+            lineHeight: 20,
+            marginBottom: 16,
+        },
+        questionSection: {
+            marginBottom: 24,
+        },
+        questionContainer: {
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            marginBottom: 16,
+        },
+        questionBubble: {
+            flex: 1,
+            backgroundColor: theme.colors.surface,
+            borderRadius: 20,
+            paddingHorizontal: 20,
+            paddingVertical: 16,
+            marginLeft: 12,
+            elevation: 2,
+            shadowColor: theme.colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            borderWidth: 1,
+            borderColor: theme.colors.outline,
+        },
+        questionText: {
+            color: theme.colors.onSurface,
+            fontWeight: '600',
+            fontSize: 16,
+            textAlign: 'center',
+        },
+        avatarContainer: {
+            backgroundColor: theme.colors.primaryContainer,
+            borderRadius: 20,
+            padding: 8,
+            elevation: 2,
+            shadowColor: theme.colors.shadow,
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+        },
+        input: {
+            minHeight: 120,
+            textAlignVertical: 'top',
+            color: theme.colors.onSurface,
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.outline,
+            borderRadius: 16,
+            borderWidth: 1.5,
+            padding: 16,
+            width: '100%',
+            elevation: 1,
+            shadowColor: theme.colors.shadow,
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.05,
+            shadowRadius: 2,
+        },
+        saveButton: {
+            borderRadius: 16,
+            marginTop: 16,
+            elevation: 3,
+            shadowColor: theme.colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 4,
+        },
+        saveButtonContent: {
+            paddingVertical: 12,
+            paddingHorizontal: 32,
+        },
+        saveButtonLabel: {
+            fontSize: 18,
+            fontWeight: 'bold',
+        },
+        tagSelectorContainer: {
+            marginTop: 12,
+        },
+        notesSection: {
+            marginTop: 8,
+        },
+        notesLabel: {
+            color: theme.colors.onSurface,
+            fontWeight: '600',
+            fontSize: 16,
+            marginBottom: 12,
             textAlign: 'center',
         },
     });
 
     if (editing && !existingEntry) {
         console.error('No existing entry found for editing');
-        return null; // or handle this case appropriately
+        return null;
     }
 
     const [sleepAmount, setSleepAmount] = useState(editing ? existingEntry.sleep_time : '');
@@ -61,19 +151,13 @@ export default function EntryScreenForm() {
     const [others, setOthers] = useState<string>(editing ? existingEntry.others : '');
 
     const handleSave = async () => {
-        // Validate required fields as needed
-        // Example: require at least one mood and sleepAmount
-        // if (moods.length === 0) return;
         try {
-            // For new entries: use selectedDate if provided, otherwise current time
-            // For editing: don't include timestamp to preserve original
             const getTimestamp = () => {
                 if (editing) {
-                    return undefined; // Don't update timestamp when editing
+                    return undefined;
                 }
                 
                 if (selectedDate) {
-                    // Use the selected date but keep current time
                     const date = new Date(selectedDate);
                     date.setHours(new Date().getHours());
                     date.setMinutes(new Date().getMinutes());
@@ -81,7 +165,7 @@ export default function EntryScreenForm() {
                     return date.toISOString();
                 }
                 
-                return new Date().toISOString(); // Default to current time
+                return new Date().toISOString();
             };
 
             let entryData: {
@@ -101,10 +185,10 @@ export default function EntryScreenForm() {
             } = {
                 sleep_time: String(sleepAmount),
                 sleep_quality: String(sleepQuality),
-                moods: moods.join(', '), // Convert array to string
+                moods: moods.join(', '),
                 energy_level: String(energyLevel),
                 stress_level: String(stressLevel),
-                body_feel: bodyFeel.join(', '), // Convert array to string
+                body_feel: bodyFeel.join(', '),
                 appetite: String(appetite),
                 focus: String(focus),
                 motivation: String(motivation),
@@ -112,14 +196,12 @@ export default function EntryScreenForm() {
                 others: others,
             };
 
-            // Only add timestamp for new entries
             const timestamp = getTimestamp();
             if (timestamp) {
                 entryData.timestamp = timestamp;
             }
 
             if (editing) {
-                // Ensure id is present and of type number
                 await updateEntry(
                     {
                         ...entryData,
@@ -135,7 +217,7 @@ export default function EntryScreenForm() {
             console.error('Error saving entry:', error);
             return;
         }
-        // Reset all fields
+        
         setSleepAmount('');
         setSleepQuality('');
         setMoods([]);
@@ -149,215 +231,250 @@ export default function EntryScreenForm() {
         setOthers('');
     };
 
-    const AvatarPanda = (<Avatar.Image
-        size={32}
-        source={require('../../assets/my-cherryspace.png')}
-        style={{ backgroundColor: "rgba(255,255,255,0)", alignContent: 'center', justifyContent: 'center', borderRadius: 16, marginRight: 8 }}
-    />);
-
-    const Question = ({ text }: { text: string }) => (
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', marginBottom: 4 }}>
-            {AvatarPanda}
-            <Text
-                style={[styles.questions, { flexShrink: 1, flexWrap: 'wrap', backgroundColor: theme.colors.secondaryContainer, borderColor: "#4691ED", borderWidth: 1, borderRadius: 16, paddingHorizontal: 8, paddingVertical: 2 }]}
-                variant="titleMedium"
-                numberOfLines={2}
-                ellipsizeMode="tail"
-            >
-                {text}
-            </Text>
+    const Question = ({ text, children }: { text: string; children: React.ReactNode }) => (
+        <View style={styles.questionSection}>
+            <View style={styles.questionContainer}>
+                <View style={styles.avatarContainer}>
+                    <Avatar.Image
+                        size={32}
+                        source={require('../../assets/my-cherryspace.png')}
+                        style={{ borderRadius: 16 }}
+                    />
+                </View>
+                <View style={styles.questionBubble}>
+                    <Text style={styles.questionText}>{text}</Text>
+                </View>
+            </View>
+            <View style={styles.tagSelectorContainer}>
+                {children}
+            </View>
         </View>
     );
 
     return (
         <KeyboardAwareScrollView
             contentContainerStyle={styles.scrollContainer}
-            enableOnAndroid={true} // Ensures it works on Android
-            extraScrollHeight={200} // Adjusts scroll height when the keyboard is open
+            enableOnAndroid={true}
+            extraScrollHeight={200}
         >
             <View style={styles.container}>
-                <Text variant="headlineSmall" style={{ color: theme.colors.backdrop, fontWeight: 'bold', textAlign: 'center' }}>
-                    {editing ? 'Edit Your Mood Entry' : 'Create a New Mood Entry'}
-                </Text>
-                <Text variant="labelSmall" style={{ color: theme.colors.backdrop, textAlign: 'center', marginBottom: 16 }}>
-                    Please fill out the following questions to help you understand your mood today.
-                </Text>
+                <View style={styles.headerSection}>
+                    <Text variant="headlineMedium" style={styles.pageTitle}>
+                        {editing ? 'Edit Your Mood Entry' : 'Create a New Mood Entry'}
+                    </Text>
+                    <Text variant="bodyMedium" style={styles.pageSubtitle}>
+                        Please fill out the following questions to help you understand your mood today.
+                    </Text>
+                </View>
 
-                {Question({ text: "How long did you sleep for?" })}
-                <TagSelector
-                    selected={sleepAmount}
-                    onChange={setSleepAmount}
-                    singleSelect={true}
-                    tags={[
-                        "😴 Didn't sleep",
-                        "🌙 0-2",
-                        "🌘 3-5",
-                        "🌗 6-8",
-                        "🌕 8+"
-                    ]}
-                />
-                {Question({ text: "How was your sleep quality?" })}
-                <TagSelector
-                    selected={sleepQuality}
-                    onChange={setSleepQuality}
-                    singleSelect={true}
-                    tags={[
-                        "😵 Very Poor",
-                        "😕 Poor",
-                        "😐 Fair",
-                        "🙂 Good",
-                        "😃 Very Good"
-                    ]}
-                />
-                {Question({ text: "How are you feeling?" })}
-                <TagSelector
-                    selected={moods}
-                    onChange={(tags) => setMoods(Array.isArray(tags) ? tags : [tags])}
-                    tags={[
-                        '😊 Happy',
-                        '😢 Sad',
-                        '😡 Angry',
-                        '😰 Anxious',
-                        '😌 Relaxed',
-                        '🤩 Excited',
-                        '😐 Bored',
-                        '😔 Disappointed',
-                        '😤 Frustrated',
-                        '😱 Stressed',
-                        '😇 Grateful',
-                        '🥱 Tired',
-                        '😕 Confused',
-                        '😳 Embarrassed',
-                        '😎 Confident',
-                        '🥳 Proud',
-                        '😭 Overwhelmed',
-                        '😶 Numb',
-                        '😅 Relieved',
-                        '🤗 Loved',
-                        '😬 Nervous',
-                        '😒 Annoyed',
-                        '😃 Content',
-                        '😞 Lonely'
-                    ]}
-                    singleSelect={false}
-                />
-                {Question({ text: "How is your energy level?" })}
-                <TagSelector
-                    selected={energyLevel}
-                    onChange={setEnergyLevel}
-                    singleSelect={true}
-                    tags={[
-                        "😴 Very Low",
-                        "😪 Low",
-                        "😐 Medium",
-                        "🙂 High",
-                        "⚡ Very High"
-                    ]}
-                />
-                {Question({ text: "How is your stress level?" })}
-                <TagSelector
-                    selected={stressLevel}
-                    onChange={setStressLevel}
-                    singleSelect={true}
-                    tags={[
-                        "😌 Very Low",
-                        "🙂 Low",
-                        "😐 Medium",
-                        "😣 High",
-                        "😱 Very High"
-                    ]}
-                />
-                {Question({ text: "How does your body feel?" })}
-                <TagSelector
-                    selected={bodyFeel}
-                    onChange={(tags) => setBodyFeel(Array.isArray(tags) ? tags : [tags])}
-                    tags={[
-                        '🥱 Tired',
-                        '😣 Sore',
-                        '😌 Relaxed',
-                        '⚡ Energetic',
-                        '😵 Restless',
-                        '🤒 Sick',
-                        '🤕 In Pain',
-                        '😃 Refreshed',
-                        '😫 Achy',
-                        '🤢 Nauseous',
-                        '😤 Bloated',
-                        '😰 Tense',
-                        '🦵 Heavy',
-                        '🦋 Light',
-                        '🧊 Cold',
-                        '🔥 Warm',
-                        '🦠 Weak',
-                        '💪 Strong',
-                        '😶 Numb',
-                        '😮 Out of Breath'
-                    ]}
-                    singleSelect={false}
-                />
-                {Question({ text: "How is your appetite?" })}
-                <TagSelector
-                    selected={appetite}
-                    onChange={setAppetite}
-                    singleSelect={true}
-                    tags={[
-                        "😶 No Appetite",
-                        "😕 Low",
-                        "😐 Medium",
-                        "🙂 High",
-                        "🤤 Very High"
-                    ]}
-                />
-                {Question({ text: "How is your focus?" })}
-                <TagSelector
-                    selected={focus}
-                    onChange={setFocus}
-                    singleSelect={true}
-                    tags={[
-                        "😵 Very Low",
-                        "😕 Low",
-                        "😐 Medium",
-                        "🙂 High",
-                        "🎯 Very High"
-                    ]}
-                />
-                {Question({ text: "How is your motivation?" })}
-                <TagSelector
-                    selected={motivation}
-                    onChange={setMotivation}
-                    singleSelect={true}
-                    tags={[
-                        "😩 Very Low",
-                        "😕 Low",
-                        "😐 Medium",
-                        "🙂 High",
-                        "💪 Very High"
-                    ]}
-                />
-                {Question({ text: "How is your anxiety?" })}
-                <TagSelector
-                    selected={anxiety}
-                    onChange={setAnxiety}
-                    singleSelect={true}
-                    tags={[
-                        "😌 Very Low",
-                        "🙂 Low",
-                        "😐 Medium",
-                        "😰 High",
-                        "😱 Very High"
-                    ]}
-                />
-                {Question({ text: "Anything else you'd like to share?" })}
-                <TextInput
-                    multiline
-                    placeholder="For example, any other feelings, thoughts, or events that affected your day."
-                    placeholderTextColor={theme.colors.backdrop}
-                    textColor='#000000'
-                    style={styles.input}
-                    value={others}
-                    onChangeText={(text) => setOthers(text)}
-                    mode="outlined" />
-                <Button mode="contained" onPress={handleSave} disabled={!sleepAmount}>
+                <Question text="How long did you sleep for?">
+                    <TagSelector
+                        selected={sleepAmount}
+                        onChange={setSleepAmount}
+                        singleSelect={true}
+                        tags={[
+                            "😴 Didn't sleep",
+                            "🌙 0-2",
+                            "🌘 3-5",
+                            "🌗 6-8",
+                            "🌕 8+"
+                        ]}
+                    />
+                </Question>
+
+                <Question text="How was your sleep quality?">
+                    <TagSelector
+                        selected={sleepQuality}
+                        onChange={setSleepQuality}
+                        singleSelect={true}
+                        tags={[
+                            "😵 Very Poor",
+                            "😕 Poor",
+                            "😐 Fair",
+                            "🙂 Good",
+                            "😃 Very Good"
+                        ]}
+                    />
+                </Question>
+
+                <Question text="How are you feeling?">
+                    <TagSelector
+                        selected={moods}
+                        onChange={(tags) => setMoods(Array.isArray(tags) ? tags : [tags])}
+                        tags={[
+                            '😊 Happy',
+                            '😢 Sad',
+                            '😡 Angry',
+                            '😰 Anxious',
+                            '😌 Relaxed',
+                            '🤩 Excited',
+                            '😐 Bored',
+                            '😔 Disappointed',
+                            '😤 Frustrated',
+                            '😱 Stressed',
+                            '😇 Grateful',
+                            '🥱 Tired',
+                            '😕 Confused',
+                            '😳 Embarrassed',
+                            '😎 Confident',
+                            '🥳 Proud',
+                            '😭 Overwhelmed',
+                            '😶 Numb',
+                            '😅 Relieved',
+                            '🤗 Loved',
+                            '😬 Nervous',
+                            '😒 Annoyed',
+                            '😃 Content',
+                            '😞 Lonely'
+                        ]}
+                        singleSelect={false}
+                    />
+                </Question>
+
+                <Question text="How is your energy level?">
+                    <TagSelector
+                        selected={energyLevel}
+                        onChange={setEnergyLevel}
+                        singleSelect={true}
+                        tags={[
+                            "😴 Very Low",
+                            "😪 Low",
+                            "😐 Medium",
+                            "🙂 High",
+                            "⚡ Very High"
+                        ]}
+                    />
+                </Question>
+
+                <Question text="How is your stress level?">
+                    <TagSelector
+                        selected={stressLevel}
+                        onChange={setStressLevel}
+                        singleSelect={true}
+                        tags={[
+                            "😌 Very Low",
+                            "🙂 Low",
+                            "😐 Medium",
+                            "😣 High",
+                            "😱 Very High"
+                        ]}
+                    />
+                </Question>
+
+                <Question text="How does your body feel?">
+                    <TagSelector
+                        selected={bodyFeel}
+                        onChange={(tags) => setBodyFeel(Array.isArray(tags) ? tags : [tags])}
+                        tags={[
+                            '🥱 Tired',
+                            '😣 Sore',
+                            '😌 Relaxed',
+                            '⚡ Energetic',
+                            '😵 Restless',
+                            '🤒 Sick',
+                            '🤕 In Pain',
+                            '😃 Refreshed',
+                            '😫 Achy',
+                            '🤢 Nauseous',
+                            '😤 Bloated',
+                            '😰 Tense',
+                            '🦵 Heavy',
+                            '🦋 Light',
+                            '🧊 Cold',
+                            '🔥 Warm',
+                            '🦠 Weak',
+                            '💪 Strong',
+                            '😶 Numb',
+                            '😮 Out of Breath'
+                        ]}
+                        singleSelect={false}
+                    />
+                </Question>
+
+                <Question text="How is your appetite?">
+                    <TagSelector
+                        selected={appetite}
+                        onChange={setAppetite}
+                        singleSelect={true}
+                        tags={[
+                            "😶 No Appetite",
+                            "😕 Low",
+                            "😐 Medium",
+                            "🙂 High",
+                            "🤤 Very High"
+                        ]}
+                    />
+                </Question>
+
+                <Question text="How is your focus?">
+                    <TagSelector
+                        selected={focus}
+                        onChange={setFocus}
+                        singleSelect={true}
+                        tags={[
+                            "😵 Very Low",
+                            "😕 Low",
+                            "😐 Medium",
+                            "🙂 High",
+                            "🎯 Very High"
+                        ]}
+                    />
+                </Question>
+
+                <Question text="How is your motivation?">
+                    <TagSelector
+                        selected={motivation}
+                        onChange={setMotivation}
+                        singleSelect={true}
+                        tags={[
+                            "😩 Very Low",
+                            "😕 Low",
+                            "😐 Medium",
+                            "🙂 High",
+                            "💪 Very High"
+                        ]}
+                    />
+                </Question>
+
+                <Question text="How is your anxiety?">
+                    <TagSelector
+                        selected={anxiety}
+                        onChange={setAnxiety}
+                        singleSelect={true}
+                        tags={[
+                            "😌 Very Low",
+                            "🙂 Low",
+                            "😐 Medium",
+                            "😰 High",
+                            "😱 Very High"
+                        ]}
+                    />
+                </Question>
+
+                <View style={styles.notesSection}>
+                    <Text style={styles.notesLabel}>Anything else you'd like to share?</Text>
+                    <TextInput
+                        multiline
+                        placeholder="For example, any other feelings, thoughts, or events that affected your day."
+                        placeholderTextColor={theme.colors.onSurfaceVariant}
+                        textColor={theme.colors.onSurface}
+                        style={styles.input}
+                        value={others}
+                        onChangeText={(text) => setOthers(text)}
+                        mode="outlined"
+                        outlineColor={theme.colors.outline}
+                        activeOutlineColor={theme.colors.primary}
+                    />
+                </View>
+
+                <Button 
+                    mode="contained" 
+                    onPress={handleSave} 
+                    disabled={!sleepAmount || !sleepQuality || moods.length === 0 || !energyLevel || !stressLevel || bodyFeel.length === 0 || !appetite || !focus || !motivation || !anxiety}
+                    style={styles.saveButton}
+                    contentStyle={styles.saveButtonContent}
+                    labelStyle={styles.saveButtonLabel}
+                >
                     {editing ? 'Update Entry' : 'Save Entry'}
                 </Button>
             </View>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Button, Text, TextInput, useTheme } from 'react-native-paper';
+import { Button, Text, TextInput, useTheme, Card, Avatar } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import TagSelector from '../../components/TagSelector';
 import { saveThoughtLog, updateThoughtLog, getThoughtLogById, ThoughtLog } from '../../db/database';
@@ -57,16 +57,103 @@ export default function ThoughtLogEntryScreen() {
   }, [editing, logId]);
 
   const styles = StyleSheet.create({
-    scroll: { flexGrow: 1, paddingBottom: 64, backgroundColor: theme.colors.background },
-    container: { flex: 1, padding: 16, gap: 12 },
-    input: {
-      backgroundColor: theme.colors.onSurface,
-      borderColor: theme.colors.outline,
-      borderWidth: 1,
-      borderRadius: 8,
-      padding: 6,
+    scroll: { 
+      flexGrow: 1, 
+      paddingBottom: 32, 
+      backgroundColor: theme.colors.background 
     },
-    label: { color: theme.colors.onSurface, backgroundColor: theme.colors.surface, padding: 6, borderRadius: 8 },
+    container: { 
+      flex: 1, 
+      padding: 20, 
+      gap: 20 
+    },
+    headerSection: {
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    pageTitle: {
+      color: theme.colors.onBackground,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    pageSubtitle: {
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    formSection: {
+      backgroundColor: theme.colors.surfaceVariant,
+      padding: 20,
+      borderRadius: 20,
+      marginBottom: 20,
+      elevation: 2,
+      shadowColor: theme.colors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      borderWidth: 1,
+      borderColor: theme.colors.outlineVariant,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: theme.colors.primary,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    formLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.colors.onSurfaceVariant,
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: theme.colors.surface,
+      borderColor: theme.colors.outline,
+      borderWidth: 1.5,
+      borderRadius: 16,
+      padding: 16,
+      marginTop: 8,
+      marginBottom: 16,
+      fontSize: 16,
+      color: theme.colors.onSurface,
+      minHeight: 100,
+      textAlignVertical: 'top',
+      elevation: 1,
+      shadowColor: theme.colors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+    },
+    tagSelectorContainer: {
+      marginTop: 8,
+      marginBottom: 16,
+    },
+    saveButton: {
+      borderRadius: 16,
+      marginTop: 16,
+      elevation: 3,
+      shadowColor: theme.colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+    },
+    saveButtonContent: {
+      paddingVertical: 12,
+      paddingHorizontal: 32,
+    },
+    saveButtonLabel: {
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+    iconContainer: {
+      backgroundColor: theme.colors.primaryContainer,
+      borderRadius: 20,
+      padding: 8,
+      marginBottom: 16,
+      alignSelf: 'center',
+    },
   });
 
   const handleSave = async () => {
@@ -91,103 +178,167 @@ export default function ThoughtLogEntryScreen() {
     }
   };
 
+  const FormSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <View style={styles.formSection}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {children}
+    </View>
+  );
+
   return (
     <KeyboardAwareScrollView contentContainerStyle={styles.scroll} enableOnAndroid extraScrollHeight={200}>
       <View style={styles.container}>
         {isLoading ? (
-          <Text variant="headlineSmall" style={{ color: theme.colors.backdrop, fontWeight: 'bold', textAlign: 'center' }}>
-            Loading...
-          </Text>
+          <View style={styles.headerSection}>
+            <View style={styles.iconContainer}>
+              <Avatar.Icon 
+                size={48} 
+                icon="loading" 
+                color={theme.colors.primary}
+              />
+            </View>
+            <Text variant="headlineMedium" style={styles.pageTitle}>
+              Loading...
+            </Text>
+          </View>
         ) : (
           <>
-            <Text variant="headlineSmall" style={{ color: theme.colors.backdrop, fontWeight: 'bold', textAlign: 'center' }}>
-              {editing ? 'Edit Thought Record' : 'New Thought Record'}
-            </Text>
+            <View style={styles.headerSection}>
+              <View style={styles.iconContainer}>
+                <Avatar.Icon 
+                  size={48} 
+                  icon="brain" 
+                  color={theme.colors.primary}
+                />
+              </View>
+              <Text variant="headlineMedium" style={styles.pageTitle}>
+                {editing ? 'Edit Thought Record' : 'New Thought Record'}
+              </Text>
+              <Text variant="bodyMedium" style={styles.pageSubtitle}>
+                {editing ? 'Update your cognitive restructuring exercise' : 'Practice cognitive behavioral therapy techniques'}
+              </Text>
+            </View>
 
-            <Text variant="labelLarge" style={styles.label}>Situation</Text>
-            <TextInput
-              multiline
-              placeholder="Describe the situation or trigger"
-              placeholderTextColor={theme.colors.backdrop}
-              textColor="#000"
-              style={styles.input}
-              value={situation}
-              onChangeText={setSituation}
-              mode="flat"
-            />
+            <FormSection title="Situation & Context">
+              <Text style={styles.formLabel}>Describe the situation or trigger</Text>
+              <TextInput
+                multiline
+                placeholder="What happened? Where were you? Who was involved?"
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                textColor={theme.colors.onSurface}
+                style={styles.input}
+                value={situation}
+                onChangeText={setSituation}
+                mode="outlined"
+                outlineColor={theme.colors.outline}
+                activeOutlineColor={theme.colors.primary}
+              />
+            </FormSection>
 
-            <Text variant="labelLarge" style={styles.label}>Emotions</Text>
-            <TagSelector
-              selected={emotions}
-              onChange={(tags) => setEmotions(Array.isArray(tags) ? tags : [tags])}
-              singleSelect={false}
-              tags={[
-                '😢 Sad', '😡 Angry', '😰 Anxious', '😌 Calm', '😱 Scared', '😇 Grateful', '🥱 Tired', '😕 Confused', '😎 Confident', '😭 Overwhelmed'
-              ]}
-            />
+            <FormSection title="Emotional Response">
+              <Text style={styles.formLabel}>What emotions did you experience?</Text>
+              <View style={styles.tagSelectorContainer}>
+                <TagSelector
+                  selected={emotions}
+                  onChange={(tags) => setEmotions(Array.isArray(tags) ? tags : [tags])}
+                  singleSelect={false}
+                  tags={[
+                    '😢 Sad', '😡 Angry', '😰 Anxious', '😌 Calm', '😱 Scared', 
+                    '😇 Grateful', '🥱 Tired', '😕 Confused', '😎 Confident', 
+                    '😭 Overwhelmed', '😤 Frustrated', '😔 Disappointed', '🤗 Loved'
+                  ]}
+                />
+              </View>
+            </FormSection>
 
-            <Text variant="labelLarge" style={styles.label}>Automatic Thoughts</Text>
-            <TextInput
-              multiline
-              placeholder="What went through your mind?"
-              placeholderTextColor={theme.colors.backdrop}
-              textColor="#000"
-              style={styles.input}
-              value={automaticThoughts}
-              onChangeText={setAutomaticThoughts}
-              mode="flat"
-            />
+            <FormSection title="Automatic Thoughts">
+              <Text style={styles.formLabel}>What went through your mind?</Text>
+              <TextInput
+                multiline
+                placeholder="What thoughts automatically came to mind? What did you tell yourself?"
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                textColor={theme.colors.onSurface}
+                style={styles.input}
+                value={automaticThoughts}
+                onChangeText={setAutomaticThoughts}
+                mode="outlined"
+                outlineColor={theme.colors.outline}
+                activeOutlineColor={theme.colors.primary}
+              />
+            </FormSection>
 
-            <Text variant="labelLarge" style={styles.label}>Evidence For</Text>
-            <TextInput
-              multiline
-              placeholder="What evidence supports the thought?"
-              placeholderTextColor={theme.colors.backdrop}
-              textColor="#000"
-              style={styles.input}
-              value={evidenceFor}
-              onChangeText={setEvidenceFor}
-              mode="flat"
-            />
+            <FormSection title="Evidence Analysis">
+              <Text style={styles.formLabel}>Evidence that supports the thought</Text>
+              <TextInput
+                multiline
+                placeholder="What facts or evidence support this thought?"
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                textColor={theme.colors.onSurface}
+                style={styles.input}
+                value={evidenceFor}
+                onChangeText={setEvidenceFor}
+                mode="outlined"
+                outlineColor={theme.colors.outline}
+                activeOutlineColor={theme.colors.primary}
+              />
 
-            <Text variant="labelLarge" style={styles.label}>Evidence Against</Text>
-            <TextInput
-              multiline
-              placeholder="What evidence does not support the thought?"
-              placeholderTextColor={theme.colors.backdrop}
-              textColor="#000"
-              style={styles.input}
-              value={evidenceAgainst}
-              onChangeText={setEvidenceAgainst}
-              mode="flat"
-            />
+              <Text style={styles.formLabel}>Evidence that doesn't support the thought</Text>
+              <TextInput
+                multiline
+                placeholder="What facts or evidence contradict this thought?"
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                textColor={theme.colors.onSurface}
+                style={styles.input}
+                value={evidenceAgainst}
+                onChangeText={setEvidenceAgainst}
+                mode="outlined"
+                outlineColor={theme.colors.outline}
+                activeOutlineColor={theme.colors.primary}
+              />
+            </FormSection>
 
-            <Text variant="labelLarge" style={styles.label}>Alternative Thought</Text>
-            <TextInput
-              multiline
-              placeholder="A more balanced thought"
-              placeholderTextColor={theme.colors.backdrop}
-              textColor="#000"
-              style={styles.input}
-              value={alternativeThought}
-              onChangeText={setAlternativeThought}
-              mode="flat"
-            />
+            <FormSection title="Cognitive Restructuring">
+              <Text style={styles.formLabel}>Alternative, more balanced thought</Text>
+              <TextInput
+                multiline
+                placeholder="What would be a more realistic and helpful way to think about this?"
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                textColor={theme.colors.onSurface}
+                style={styles.input}
+                value={alternativeThought}
+                onChangeText={setAlternativeThought}
+                mode="outlined"
+                outlineColor={theme.colors.outline}
+                activeOutlineColor={theme.colors.primary}
+              />
+            </FormSection>
 
-            <Text variant="labelLarge" style={styles.label}>Outcome</Text>
-            <TextInput
-              multiline
-              placeholder="How do you feel now? What will you do?"
-              placeholderTextColor={theme.colors.backdrop}
-              textColor="#000"
-              style={styles.input}
-              value={outcome}
-              onChangeText={setOutcome}
-              mode="flat"
-            />
+            <FormSection title="Outcome & Action">
+              <Text style={styles.formLabel}>How do you feel now? What will you do?</Text>
+              <TextInput
+                multiline
+                placeholder="How has your mood changed? What actions will you take?"
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                textColor={theme.colors.onSurface}
+                style={styles.input}
+                value={outcome}
+                onChangeText={setOutcome}
+                mode="outlined"
+                outlineColor={theme.colors.outline}
+                activeOutlineColor={theme.colors.primary}
+              />
+            </FormSection>
 
-            <Button mode="contained" onPress={handleSave} disabled={!situation || emotions.length === 0}>
-              {editing ? 'Update' : 'Save'}
+            <Button 
+              mode="contained" 
+              onPress={handleSave} 
+              disabled={!situation || emotions.length === 0}
+              style={styles.saveButton}
+              contentStyle={styles.saveButtonContent}
+              labelStyle={styles.saveButtonLabel}
+              icon="content-save"
+            >
+              {editing ? 'Update Record' : 'Save Record'}
             </Button>
           </>
         )}

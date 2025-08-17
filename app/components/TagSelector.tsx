@@ -70,7 +70,7 @@ export default function TagSelector({
       color: theme.colors.onSurface,
     },
     selectedText: {
-      color: theme.colors.onSurface,
+      color: theme.colors.onTertiary,
     },
   });
 

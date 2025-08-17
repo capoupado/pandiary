@@ -28,10 +28,10 @@ function MainTabs() {
         tabBarIcon: ({ color, size }) => {
           let iconName: string;
 
-          if (route.name === 'Today') {
-            iconName = 'calendar-today';
-          } else if (route.name === 'Summary') {
-            iconName = 'chart-bar';
+          if (route.name === 'Home') {
+            iconName = 'home';
+          } else if (route.name === 'Weekly') {
+            iconName = 'calendar-week';
           } else if (route.name === 'UserInfo') {
             iconName = 'account-circle';
           } else {
@@ -56,8 +56,8 @@ function MainTabs() {
         },
       })}
     >
-      <Tab.Screen name="Today" component={HomeScreen} options={{ headerShown: false}} />
-      <Tab.Screen name="Summary" component={SummaryScreen} options={{headerStyle: { backgroundColor: theme.colors.primaryContainer }}} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false}} />
+      <Tab.Screen name="Weekly" component={SummaryScreen} options={{headerStyle: { backgroundColor: theme.colors.primaryContainer }}} />
       <Tab.Screen name="CBTExercises" component={CBTExercisesScreen} options={{ title: 'CBT Exercises', headerStyle: { backgroundColor: theme.colors.primaryContainer } }}/>
       <Tab.Screen name="UserInfo" component={UserInfoScreen} options={{ title: 'User Information', headerStyle: { backgroundColor: theme.colors.primaryContainer } }}/>
     </Tab.Navigator>
