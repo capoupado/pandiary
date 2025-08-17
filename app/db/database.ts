@@ -3,57 +3,85 @@ import { openDatabaseSync } from "expo-sqlite";
 const db = openDatabaseSync("clarity.db");
 
 export async function setupDatabase() {
-  await db.execAsync(`CREATE TABLE IF NOT EXISTS entries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sleep_time TEXT,
-        sleep_quality TEXT,
-        moods TEXT,
-        energy_level TEXT,
-        stress_level TEXT,
-        body_feel TEXT,
-        appetite TEXT,
-        focus TEXT,
-        motivation TEXT,
-        anxiety TEXT,
-        others TEXT,
-        ai_report TEXT,
-        timestamp TEXT
-      );
-
-      CREATE TABLE IF NOT EXISTS user_info (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        age INTEGER,
-        weight INTEGER,
-        height INTEGER,
-        conditions TEXT,
-        medications TEXT,
-        hobbies TEXT,
-        goals TEXT,
-        occupation TEXT,
-        physical_activity TEXT,
-        additional_info TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS thought_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        situation TEXT,
-        emotions TEXT,
-        automatic_thoughts TEXT,
-        evidence_for TEXT,
-        evidence_against TEXT,
-        alternative_thought TEXT,
-        outcome TEXT,
-        timestamp TEXT
-    );`).catch((error) => {
-    console.error("Error setting up database:", error);
+  try {
+    console.log('Setting up database tables...');
+    
+    // Create entries table
+    await db.execAsync(`CREATE TABLE IF NOT EXISTS entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      sleep_time TEXT,
+      sleep_quality TEXT,
+      moods TEXT,
+      energy_level TEXT,
+      stress_level TEXT,
+      body_feel TEXT,
+      appetite TEXT,
+      focus TEXT,
+      motivation TEXT,
+      anxiety TEXT,
+      others TEXT,
+      ai_report TEXT,
+      timestamp TEXT
+    )`).catch((error) => {
+      console.error("Error creating entries table:", error);
+      throw error; // Re-throw to be caught by outer try-catch
     });
-  await db.execAsync(
-    `CREATE INDEX IF NOT EXISTS idx_entries_timestamp ON entries(timestamp);`
-  ).catch(() => {});
-  await db.execAsync(
-    `CREATE INDEX IF NOT EXISTS idx_thought_logs_timestamp ON thought_logs(timestamp);`
-  ).catch(() => {});
+
+    // Create user_info table
+    await db.execAsync(`CREATE TABLE IF NOT EXISTS user_info (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      age INTEGER,
+      weight INTEGER,
+      height INTEGER,
+      conditions TEXT,
+      medications TEXT,
+      hobbies TEXT,
+      goals TEXT,
+      occupation TEXT,
+      physical_activity TEXT,
+      additional_info TEXT
+    )`).catch((error) => {
+      console.error("Error creating user_info table:", error);
+      throw error;
+    });
+
+    // Create thought_logs table
+    await db.execAsync(`CREATE TABLE IF NOT EXISTS thought_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      situation TEXT,
+      emotions TEXT,
+      automatic_thoughts TEXT,
+      evidence_for TEXT,
+      evidence_against TEXT,
+      alternative_thought TEXT,
+      outcome TEXT,
+      timestamp TEXT
+    )`).catch((error) => {
+      console.error("Error creating thought_logs table:", error);
+      throw error;
+    });
+
+    // Create indexes
+    await db.execAsync(
+      `CREATE INDEX IF NOT EXISTS idx_entries_timestamp ON entries(timestamp);`
+    ).catch((error) => {
+      console.error("Error creating entries timestamp index:", error);
+      // Don't throw for index creation failures
+    });
+
+    await db.execAsync(
+      `CREATE INDEX IF NOT EXISTS idx_thought_logs_timestamp ON thought_logs(timestamp);`
+    ).catch((error) => {
+      console.error("Error creating thought_logs timestamp index:", error);
+      // Don't throw for index creation failures
+    });
+
+    console.log('Database setup completed successfully');
+  } catch (error) {
+    console.error('Critical database setup error:', error);
+    throw error; // Re-throw to be caught by App.tsx
+  }
 }
 
 export async function clearDatabase() {

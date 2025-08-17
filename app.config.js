@@ -1,7 +1,7 @@
 export default {
   expo: {
-    name: "my-feelings-app",
-    slug: "my-feelings-app",
+    name: "Pandiary",
+    slug: "pandiary",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -20,7 +20,10 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff"
       },
-      edgeToEdgeEnabled: true
+      edgeToEdgeEnabled: true,
+      package: "com.pandiary.app",
+      versionCode: 1,
+      kotlinVersion: "1.8.0",
     },
     web: {
       favicon: "./assets/favicon.png"
@@ -31,7 +34,10 @@ export default {
       "./assets/fonts/CircularStd-Bold.otf"
     ],
     extra: {
-      OPENAI_API_KEY: process.env.OPENAI_API_KEY
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+      eas: {
+        projectId: "4bad6624-1550-48e4-a56a-e8c849eb9229"
+      }
     }
   }
 };

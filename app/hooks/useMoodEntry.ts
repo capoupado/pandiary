@@ -17,9 +17,7 @@ export const useMoodEntry = () => {
         try {
             const normalizedDate = normalizeDate(date);
             const dateString = normalizedDate.toISOString();
-            console.log('Fetching entry for normalized date:', dateString);
             const entry = await getEntryByDate(dateString);
-            console.log('Found entry:', entry);
             setSelectedEntry(entry);
             return entry;
         } catch (error) {

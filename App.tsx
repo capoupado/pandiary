@@ -17,52 +17,10 @@ import CBTExercisesScreen from './app/screens/CBTExercisesScreen';
 import ThoughtLogScreen from './app/screens/ThoughtLogScreen';
 import ThoughtLogEntryScreen from './app/screens/thought-log/ThoughtLogEntryScreen';
 import ThoughtLogViewScreen from './app/screens/thought-log/ThoughtLogViewScreen';
+import { View, Text } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-function MainTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
-          let iconName: string;
-
-          if (route.name === 'Home') {
-            iconName = 'home';
-          } else if (route.name === 'Weekly') {
-            iconName = 'calendar-week';
-          } else if (route.name === 'UserInfo') {
-            iconName = 'account-circle';
-          } else {
-            iconName = 'circle';
-          }
-
-          return (
-            <MaterialCommunityIcons
-              name={iconName as any}
-              color={color}
-              size={size ?? 24}
-            />
-          );
-        },
-        tabBarActiveTintColor: theme.colors.secondary,
-        tabBarInactiveTintColor: theme.colors.backdrop,
-        tabBarStyle: {
-          backgroundColor: theme.colors.primaryContainer,
-          borderTopWidth: 1,
-          borderColor: theme.colors.secondary,
-          elevation: 2,
-        },
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false}} />
-      <Tab.Screen name="Weekly" component={SummaryScreen} options={{headerStyle: { backgroundColor: theme.colors.primaryContainer }}} />
-      <Tab.Screen name="CBTExercises" component={CBTExercisesScreen} options={{ title: 'CBT Exercises', headerStyle: { backgroundColor: theme.colors.primaryContainer } }}/>
-      <Tab.Screen name="UserInfo" component={UserInfoScreen} options={{ title: 'User Information', headerStyle: { backgroundColor: theme.colors.primaryContainer } }}/>
-    </Tab.Navigator>
-  );
-}
 
 const theme = {
   ...DefaultTheme,
@@ -133,23 +91,90 @@ const theme = {
   },
 };
 
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName: string;
+
+          if (route.name === 'Home') {
+            iconName = 'home';
+          } else if (route.name === 'Weekly') {
+            iconName = 'calendar-week';
+          } else if (route.name === 'UserInfo') {
+            iconName = 'account-circle';
+          } else if (route.name === 'CBTExercises') {
+            iconName = 'brain';
+          } else {
+            iconName = 'circle';
+          }
+
+          return (
+            <MaterialCommunityIcons
+              name={iconName as any}
+              color={color}
+              size={size ?? 24}
+            />
+          );
+        },
+        tabBarActiveTintColor: theme.colors.secondary,
+        tabBarInactiveTintColor: theme.colors.backdrop,
+        tabBarStyle: {
+          backgroundColor: theme.colors.primaryContainer,
+          borderTopWidth: 1,
+          borderColor: theme.colors.secondary,
+          elevation: 2,
+        },
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false}} />
+      <Tab.Screen name="Weekly" component={SummaryScreen} options={{headerStyle: { backgroundColor: theme.colors.primaryContainer }}} />
+      <Tab.Screen name="CBTExercises" component={CBTExercisesScreen} options={{ title: 'CBT Exercises', headerStyle: { backgroundColor: theme.colors.primaryContainer } }}/>
+      <Tab.Screen name="UserInfo" component={UserInfoScreen} options={{ title: 'User Information', headerStyle: { backgroundColor: theme.colors.primaryContainer } }}/>
+    </Tab.Navigator>
+  );
+}
+
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        console.log('Starting database setup...');
         await setupDatabase();
+        console.log('Database setup completed');
+        
         // Add a small delay to show the loading screen
         setTimeout(() => setIsLoading(false), 1500);
       } catch (error) {
-        console.error('Error setting up database:', error);
+        console.error('Critical error during app initialization:', error);
+        // Don't crash the app, just show loading error
+        setHasError(true);
         setIsLoading(false);
       }
     };
 
     initializeApp();
   }, []);
+
+  // Show error state if something went wrong
+  if (hasError) {
+    return (
+      <PaperProvider theme={theme}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <Text style={{ fontSize: 18, textAlign: 'center', marginBottom: 20 }}>
+            Something went wrong during app initialization.
+          </Text>
+          <Text style={{ fontSize: 14, textAlign: 'center', color: '#666' }}>
+            Please restart the app. If the problem persists, try clearing app data.
+          </Text>
+        </View>
+      </PaperProvider>
+    );
+  }
 
   if (isLoading) {
     return (

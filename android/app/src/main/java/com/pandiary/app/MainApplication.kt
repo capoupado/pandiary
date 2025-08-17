@@ -1,4 +1,4 @@
-package com.mycherryspace
+package com.pandiary.app
 
 import android.app.Application
 import android.content.res.Configuration
