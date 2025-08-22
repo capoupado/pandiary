@@ -33,6 +33,16 @@ export default {
       "./assets/fonts/CircularStd-Medium.otf", 
       "./assets/fonts/CircularStd-Bold.otf"
     ],
+    plugins: [
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/icon.png",
+          color: "#FEAE96",
+          sounds: []
+        }
+      ]
+    ],
     extra: {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       eas: {

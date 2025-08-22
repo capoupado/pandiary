@@ -4,6 +4,7 @@ import { Text, Button, Card, Title, Paragraph, Divider, useTheme, Avatar } from 
 import { useFocusEffect, useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { getEntryById, deleteEntry, updateAIReport } from '../db/database';
 import { formatDate, generateAIReport } from '../utils/utils'; // Assuming you have a utility function to get emoji by mood
+import { ensureDailyCheckinReminder } from '../utils/notifications';
 
 // Define your stack param list
 type RootStackParamList = {
@@ -50,7 +51,11 @@ export default function EntryDetailScreen() {
           text: "Delete",
           style: "destructive",
           onPress: () => {
-            deleteEntry(entry.id, () => navigation.goBack());
+            deleteEntry(entry.id, () => {
+              // Re-schedule notification considering this deletion
+              ensureDailyCheckinReminder();
+              navigation.goBack();
+            });
           }
         }
       ]

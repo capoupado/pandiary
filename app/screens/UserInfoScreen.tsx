@@ -5,6 +5,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { saveUserInfo, getUserInfo } from '../db/database';
+import { getReminderTime, setReminderTime, ensureDailyCheckinReminder } from '../utils/notifications';
 
 type Navigation = StackNavigationProp<any>;
 
@@ -23,6 +24,8 @@ export default function UserInfoScreen() {
     const [additionalInfo, setAdditionalInfo] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [hasData, setHasData] = useState(false);
+    const [reminderHour, setReminderHour] = useState<string>('19');
+    const [reminderMinute, setReminderMinute] = useState<string>('00');
     const theme = useTheme();
 
     const styles = StyleSheet.create({
@@ -229,6 +232,12 @@ export default function UserInfoScreen() {
             color: theme.colors.onSurfaceVariant,
             fontWeight: '500',
         },
+        helperText: {
+            marginTop: 4,
+            fontSize: 12,
+            color: theme.colors.onSurfaceVariant,
+            textAlign: 'center',
+        },
         buttonRow: {
             flexDirection: 'row',
             gap: 16,
@@ -280,6 +289,11 @@ export default function UserInfoScreen() {
             } else {
                 setHasData(false);
             }
+
+            const rt = await getReminderTime();
+            const pad = (n: number) => String(n).padStart(2, '0');
+            setReminderHour(pad(rt.hour));
+            setReminderMinute(pad(rt.minute));
         } catch (error) {
             console.error('Error loading user info:', error);
             setHasData(false);
@@ -299,6 +313,13 @@ export default function UserInfoScreen() {
 
     const handleSave = async () => {
         try {
+            const hour = Number(reminderHour);
+            const minute = Number(reminderMinute);
+            if (!Number.isFinite(hour) || hour < 0 || hour > 23 || !Number.isFinite(minute) || minute < 0 || minute > 59) {
+                Alert.alert('Invalid time', 'Please enter a valid time between 00:00 and 23:59.');
+                return;
+            }
+
             let userInfo = {
                 id: userId || 1,
                 name: String(name),
@@ -314,7 +335,10 @@ export default function UserInfoScreen() {
                 additional_info: String(additionalInfo),
             };
 
-            await saveUserInfo(userInfo, () => {
+            await saveUserInfo(userInfo, async () => {
+                await setReminderTime(hour, minute);
+                await ensureDailyCheckinReminder();
+
                 Alert.alert('Profile Saved', 'Your information has been saved successfully.');
                 setIsEditing(false);
                 setHasData(true);
@@ -518,6 +542,43 @@ export default function UserInfoScreen() {
                     activeOutlineColor={theme.colors.primary}
                 />
             </View>
+
+            {/* Reminders Section */}
+            <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Daily Reminder</Text>
+                <Text style={styles.formLabel}>What time should we remind you to check in each day?</Text>
+                <View style={styles.unitContainer}>
+                    <TextInput
+                        keyboardType="numeric"
+                        placeholder="19"
+                        textColor={theme.colors.onSurface}
+                        placeholderTextColor={theme.colors.onSurfaceVariant}
+                        style={styles.unitInput}
+                        value={reminderHour}
+                        onChangeText={(text) => setReminderHour(text.replace(/[^0-9]/g, '').slice(0, 2))}
+                        mode="outlined"
+                        outlineColor={theme.colors.outline}
+                        activeOutlineColor={theme.colors.primary}
+                    />
+                    <Text style={styles.unitText}>hour (00-23)</Text>
+                </View>
+                <View style={styles.unitContainer}>
+                    <TextInput
+                        keyboardType="numeric"
+                        placeholder="00"
+                        textColor={theme.colors.onSurface}
+                        placeholderTextColor={theme.colors.onSurfaceVariant}
+                        style={styles.unitInput}
+                        value={reminderMinute}
+                        onChangeText={(text) => setReminderMinute(text.replace(/[^0-9]/g, '').slice(0, 2))}
+                        mode="outlined"
+                        outlineColor={theme.colors.outline}
+                        activeOutlineColor={theme.colors.primary}
+                    />
+                    <Text style={styles.unitText}>minute (00-59)</Text>
+                </View>
+                <Text style={styles.helperText}>We won't send a reminder if you've already checked in for that day.</Text>
+            </View>
         </View>
     );
 
@@ -631,6 +692,10 @@ export default function UserInfoScreen() {
                                 <View style={styles.infoRow}>
                                     <Text style={styles.label}>Physical Activity:</Text>
                                     <Text style={styles.value}>{physicalActivity || 'Not specified'}</Text>
+                                </View>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Reminder Time:</Text>
+                                    <Text style={styles.value}>{`${reminderHour.padStart(2, '0')}:${reminderMinute.padStart(2, '0')}`}</Text>
                                 </View>
                                 <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
                                     <Text style={styles.label}>Additional Info:</Text>

@@ -18,6 +18,7 @@ import ThoughtLogScreen from './app/screens/ThoughtLogScreen';
 import ThoughtLogEntryScreen from './app/screens/thought-log/ThoughtLogEntryScreen';
 import ThoughtLogViewScreen from './app/screens/thought-log/ThoughtLogViewScreen';
 import { View, Text } from 'react-native';
+import { initNotifications, ensureDailyCheckinReminder } from './app/utils/notifications';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -146,6 +147,10 @@ export default function App() {
         console.log('Starting database setup...');
         await setupDatabase();
         console.log('Database setup completed');
+
+        // Initialize notifications and schedule reminder
+        await initNotifications();
+        await ensureDailyCheckinReminder();
         
         // Add a small delay to show the loading screen
         setTimeout(() => setIsLoading(false), 1500);

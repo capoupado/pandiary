@@ -307,37 +307,41 @@ export async function getEntries(): Promise<any[]> {
 }
 
 export async function getStreak(): Promise<number> {
-  // Get all entry dates, ordered descending
+  // Fetch all entry timestamps (order not required for set-based calc)
   const result = await db.getAllAsync(
-    `SELECT timestamp FROM entries ORDER BY timestamp DESC;`
+    `SELECT timestamp FROM entries;`
   );
   if (result.length === 0) return 0;
 
-  // Convert timestamps to date strings (YYYY-MM-DD)
-  const entryDates = result
-    .map((row: any) => new Date(row.timestamp))
-    .map((date: Date) => date.toISOString().slice(0, 10));
+  // Helper to normalize a date to a YYYY-MM-DD key
+  const toKey = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().slice(0, 10);
+  };
 
-  // Remove duplicate days (if multiple entries per day)
-  const uniqueDates = Array.from(new Set(entryDates));
+  // Build a set of unique entry days
+  const daysWithEntries = new Set<string>(
+    result.map((row: any) => toKey(new Date(row.timestamp)))
+  );
 
-  // Calculate streak: count consecutive days up to today
+  const today = new Date();
+  const todayKey = toKey(today);
+
+  // Start counting streak from yesterday
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
   let streak = 0;
-  let currentDate = new Date();
-  currentDate.setHours(0, 0, 0, 0);
+  let cursor = new Date(yesterday);
+  while (daysWithEntries.has(toKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
 
-  for (let i = 0; i < uniqueDates.length; i++) {
-    const entryDate = new Date(uniqueDates[i]);
-    entryDate.setHours(0, 0, 0, 0);
-
-    if (currentDate.getTime() === entryDate.getTime()) {
-      streak++;
-      // Move to previous day
-      currentDate.setDate(currentDate.getDate() - 1);
-    } else {
-      // If the entry is not for the expected day, streak ends
-      break;
-    }
+  // If today is already checked in, add +1
+  if (daysWithEntries.has(todayKey)) {
+    streak += 1;
   }
 
   return streak;

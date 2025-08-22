@@ -7,6 +7,7 @@ import { useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { scheduleTomorrowReminderAfterCheckIn } from '../utils/notifications';
 
 type Navigation = StackNavigationProp<any>;
 
@@ -206,11 +207,13 @@ export default function EntryScreenForm() {
                     {
                         ...entryData,
                         id: Number(existingEntry.id),
-                    },
-                    () => navigation.goBack()
+                    }
                 );
+                await scheduleTomorrowReminderAfterCheckIn();
+                navigation.goBack();
             } else {
                 const newId = await saveEntry(entryData as any);
+                await scheduleTomorrowReminderAfterCheckIn();
                 navigation.replace('entryDetail', { entryId: newId });
             }
         } catch (error) {
